@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .shoplists {
+            width: 1000px;
+            margin: auto;
+        }
+
+        .navlist li {
+            width: 80px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 25px;
+        }
+
+        .fixed {
+            width: 100px;
+            border: 1px solid #000;
+            position: fixed;
+            left: 10px;
+            bottom: 50px;
+            background-color: #fff;
+            border-radius: 10px;
+        }
+
+        .fixed li {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .shoplists h1 {
+            width: 100%;
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header></header>
+    <nav class="navlist">
+        <li><a href="">咖啡</a></li>
+        <li><a href="">饮食</a></li>
+        <li><a href="">正餐</a></li>
+        <li><a href="">男装</a></li>
+        <li><a href="">女装</a></li>
+        <li><a href="">眼镜</a></li>
+        <li><a href="">鞋靴</a></li>
+    </nav>
+    <div class="shoplists"></div>
+    <div class="back"></div>
+    <div class="fixed"></div>
+    <div class="back">返回顶部</div>
+</body>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/animation.js"></script>
+<script src="../js/underscore.js"></script>
+<script>
+    nav();
+    
+    var url = location.href;
+    var str = text(url);
+    // console.log(str);
+    // 导航栏tab切换 渲染数据
+    var lis = document.querySelectorAll('.navlist li');
+    for (var i = 0; i < lis.length; i++) {
+        // console.log(lis[i].innerText);
+        if(lis[i].innerText==str){
+            lis[i].className='current'
+        }
+        lis[i].onclick = function (e) {
+            e.preventDefault();
+            for (var i = 0; i < lis.length; i++) {
+                lis[i].className = "";
+            }
+            this.className = 'current';
+            // 渲染数据
+            shopList.innerHTML = "";
+            type_two = [];
+            fixed.innerHTML = "";
+
+            str = this.innerText;
+            add(str);
+        }
+    }
+
+    // console.log(-----------------------------------------------------------------------);
+    var shopList = document.querySelector('.shoplists');
+    var back = document.querySelector('.back');
+    var fixed = document.querySelector('.fixed');
+    var type_two = [];
+    var old = 0;
+    var classify_btn = document.querySelector('.search button');
+    var classify_value = document.querySelector('.search>input');
+
+
+    add(str);
+    // console.log(---------------------------------------------------------------------);
+    function add(str) {
+        Axios({
+        url: "/goodlist",
+        method: "get",
+        data: {  type_one: str, }
+    }).then(data=>{
+        // data=JSON.parse(data);
+        var html = shopList.innerHTML;
+            // 获取二级分类
+            for (var i = 0; i < data.length; i++) {
+                if (type_two.indexOf(data[i].type_two) == -1) {
+                    type_two.push(data[i].type_two)
+                }
+            }
+            // 固定侧边栏
+            for (var i = 0; i < type_two.length; i++) {
+                var li = document.createElement('li');
+                li.innerHTML = type_two[i];
+
+                var h1 = document.createElement('h1');
+                h1.innerHTML = type_two[i];
+
+                shopList.appendChild(h1);
+                fixed.appendChild(li);
+                for (var j = 0; j < data.length; j++) {
+                    if (type_two[i] == data[j].type_two) {
+                        shopList.innerHTML += `
+        <div class="listitem" data-id="${data[j].Id}">
+        <div class="list-img">
+        <img src="../asses/images/loading.jpg" alt="" data-src="${data[j].img_list_url}">
+            </div>
+            <div class="title">
+        <p>${data[j].title}</p>
+            </div>
+            <div class="text">
+        <span class="price">￥${data[j].price}</span>
+        <span>${data[j].mack}</span>
+        </div>
+        </div>
+        `
+                    }
+                }
+                lazy();
+                jump()
+            }
+            // 点击跳转详情页
+            var items = document.querySelectorAll('.listitem');
+            for (let i = 0; i < items.length; i++) {
+                items[i].onclick = function (e) {
+                    //  获取当前点击的自定义属性
+                    var id = items[i].getAttribute('data-id');
+                    location.href = `./detail.html?goodId=${id}`;
+                }
+            }
+        })
+
+    }
+    //     REQUEST.get('/goodlist', {
+    //         params: {
+    //             type_one: str,
+    //         }
+    //     }, function (data) {
+    //         console.log(data);
+    //         // console.log(data.type_two);
+    //         var html = shopList.innerHTML;
+    //         // 获取二级分类
+    //         for (var i = 0; i < data.length; i++) {
+    //             if (type_two.indexOf(data[i].type_two) == -1) {
+    //                 type_two.push(data[i].type_two)
+    //             }
+    //         }
+    //         // 固定侧边栏
+    //         for (var i = 0; i < type_two.length; i++) {
+    //             var li = document.createElement('li');
+    //             li.innerHTML = type_two[i];
+
+    //             var h1 = document.createElement('h1');
+    //             h1.innerHTML = type_two[i];
+
+    //             shopList.appendChild(h1);
+    //             fixed.appendChild(li);
+    //             for (var j = 0; j < data.length; j++) {
+    //                 if (type_two[i] == data[j].type_two) {
+    //                     shopList.innerHTML += `
+    //     <div class="listitem" data-id="${data[j].Id}">
+    //     <div class="list-img">
+    //     <img src="../asses/images/loading.jpg" alt="" data-src="${data[j].img_list_url}">
+    //         </div>
+    //         <div class="title">
+    //     <p>${data[j].title}</p>
+    //         </div>
+    //         <div class="text">
+    //     <span class="price">￥${data[j].price}</span>
+    //     <span>${data[j].mack}</span>
+    //     </div>
+    //     </div>
+    //     `
+    //                 }
+    //             }
+    //             lazy();
+    //             jump()
+    //         }
+    //         // 点击跳转详情页
+    //         var items = document.querySelectorAll('.listitem');
+    //         for (let i = 0; i < items.length; i++) {
+    //             items[i].onclick = function (e) {
+    //                 //  获取当前点击的自定义属性
+    //                 var id = items[i].getAttribute('data-id');
+    //                 location.href = `./detail.html?goodId=${id}`;
+    //             }
+    //         }
+    //     })
+    // }
+
+    window.onscroll = function () {
+        var top = document.documentElement.scrollTop;
+        // 返回顶部
+        top > 10 ? back.style.display = 'block' : back.style.display = 'none';
+        back.onclick = function () {
+            var t = setInterval(function () {
+                top = top - 30;
+                document.documentElement.scrollTop = top
+                if (document.documentElement.scrollTop == 0) {
+                    clearInterval(t)
+                }
+            }, 16.5)
+        }
+
+        // 图片懒加载
+        lazy();
+
+        // 滚动判断到达中间
+        var liname = document.querySelectorAll('.shoplists h1');
+        var fixlis = document.querySelectorAll('.fixed li');
+        for (var i = 0; i < liname.length; i++) {
+            if (top + window.innerHeight / 2 >= liname[i].offsetTop) {
+                fixlis[old].style.color = "black";
+                fixlis[i].style.color = "purple"
+                old = i;
+            }
+        }
+    }
+    // 楼层滚动
+    function jump() {
+        var lou = document.querySelectorAll('.fixed>li');
+        var liname = document.querySelectorAll('.shoplists h1');
+        for (var i = 0; i < lou.length; i++) {
+            lou[i].index = i;
+            lou[i].onclick = function () {
+                window.scrollTo(0, liname[this.index].offsetTop);
+                lou[old].style.color = "black";
+                lou[this.index].style.color = "purple"
+                old = this.index;
+            }
+        }
+    }
+
+    //  购物车
+    var tokens = localStorage.getItem('token');
+    LOGIN(tokens);
+
+    // 跳转搜索页面
+    classify_btn.onclick = function () {
+        var text = encodeURI(classify_value.value)
+        location.href = `./search.html?word=${text}`
+    }
+
+    function lazy() {
+        var img = document.querySelectorAll('.list-img img');
+        var imgs = img[img.length - 1];
+        for (var i = 0; i < img.length; i++) {
+            if (window.innerHeight + document.documentElement.scrollTop >= img[i].offsetTop) {
+                img[i].src = img[i].dataset.src;
+            }
+        }
+    }
+
+</script>
+
+</html>

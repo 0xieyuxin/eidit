@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .shopcar {
+            width: 880px;
+            margin: 50px auto 0;
+        }
+
+        .shop-list {
+            width: 100%;
+            border: 1px solid rgb(177, 176, 176);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .shop-img {
+            width: 100px;
+            width: 100px;
+            padding-left: 10px;
+        }
+
+        .shop-img img {
+            width: 100%;
+        }
+
+        .shop-count {
+            display: flex;
+        }
+
+        .shop-count span {
+            display: block;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border: 1px solid rgb(177, 176, 176);
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .shop-count .count {
+            width: 50px;
+            border: none;
+        }
+
+
+        .introduce {
+            margin: 0 50px;
+            width: 300px;
+        }
+
+        .cotatlprice {
+            color: red;
+        }
+
+        .del {
+            text-align: center;
+            margin-right: 20px;
+            border: 1px solid rgb(177, 176, 176);
+            border-radius: 10px;
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <header></header>
+
+    <div class="shopcar"></div>
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script>
+    nav();
+    var first = document.querySelectorAll('header nav ul');
+    var shopcar = document.querySelector('.shopcar');
+    var shop_id;
+    first[0].style.display = 'none';
+    first[1].style.display = 'block';
+
+    var tokens = localStorage.getItem('token');
+    LOGIN(tokens);
+    //     获取列表
+    Axios({
+        url: "/shoplist",
+        method: "get",
+        data: { token: tokens }
+    }).then(data => {
+        for (var i = 0; i < data.length; i++) {
+            // console.log(data);
+            shopcar.innerHTML += `
+            <div class="shop-list">
+                <div class="shop-img"> <img src="${data[i].img_url}" alt=""></div>
+                <div class="introduce">
+                    <h2 class="shop-title">${data[i].title}</h2>
+                    <p class="shop-text">${data[i].supplier}</p>
+                </div>
+                <p class="price">${data[i].price}</p>
+                <div class="shop-count"  data-id="${data[i].Id}">
+                    <span class="remove">-</span>
+                    <span class="count">${data[i].count}</span>
+                    <span class="add">+</span>
+                </div>
+                <p class="cotatlprice">￥${data[i].count * data[i].price}</p>
+                <div class="del">删除</div>
+            </div>
+            `
+
+            // 减少商品
+            var remove = document.querySelectorAll('.remove');
+            for (let i = 0; i < remove.length; i++) {
+                remove[i].onclick = function (e) {
+                    shop_id = e.target.parentNode.getAttribute('data-Id');
+                    Axios({
+                        url: '/remove',
+                        method: 'get',
+                        data: {
+                            goodId: shop_id,
+                            token: tokens
+                        }
+                    }).then(data => {
+                        // REQUEST.get('/remove', {
+                        //     params: {
+                        //         goodId: shop_id,
+                        //         token: tokens
+                        //     }
+                        // }, function (data) {
+                        if (data.code == 1) {
+                            var p = e.target.parentNode.previousElementSibling.innerHTML;
+                            // console.log(p);
+                            e.target.nextElementSibling.innerHTML--;
+                            e.target.parentNode.nextElementSibling.innerHTML = '￥' + e.target.nextElementSibling.innerHTML * p
+                            if (e.target.nextElementSibling.innerHTML < 1) {
+                                Axios({
+                                    url: '/del',
+                                    method: 'get',
+                                    data: {
+                                        goodId: shop_id,
+                                        token: tokens
+                                    }
+                                }).then(data => {
+                                    // console.log(data);
+                                    // console.log(e.target.parentNode.parentNode);
+                                    e.target.parentNode.parentNode.remove();
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+            // 增加
+            var add = document.querySelectorAll('.add');
+            for (let i = 0; i < add.length; i++) {
+                add[i].onclick = function (e) {
+                    Axios({
+                        url: '/add',
+                        method: 'get',
+                        data: {
+                            goodId: e.target.parentNode.getAttribute('data-Id'),
+                            token: tokens
+                        }
+                    }).then(data => {
+
+                        // REQUEST.get('/add', {
+                        //     params: {
+                        //         goodId: e.target.parentNode.getAttribute('data-Id'),
+                        //         token: tokens
+                        //     }
+                        // }, function (data) {
+                        console.log(data);
+                        if (data.code === 1) {
+                            var p = e.target.parentNode.previousElementSibling.innerHTML;
+                            e.target.previousElementSibling.innerHTML++;
+                            e.target.parentNode.nextElementSibling.innerHTML = '￥' + e.target.previousElementSibling.innerHTML * p;
+
+                            // console.log( e.target.parentNode.getAttribute('data-Id')
+                            // );
+                            // location.reload()
+                        }
+                    })
+
+                }
+            }
+
+
+            var del = document.querySelector('.del');
+            del.onclick = function (e) {
+                Axios({
+                    url: '/del',
+                    method: 'get',
+                    data: {
+                        token: tokens,
+                        goodId: shop_id
+                    }
+                }).then(data => {
+                    // REQUEST.get('/del', {
+                    //     params: {
+                    //         token: tokens,
+                    //         goodId: shop_id
+                    //     }
+                    // }, function (data) {
+                    // console.log(data);
+                    // console.log(e.target.parentNode.parentNode);
+                    if (data.code == 1) {
+                        e.target.parentNode.remove();
+                    }
+                })
+            }
+
+        }
+    })
+    // REQUEST.get('/shoplist', {
+    //     params: {
+    //         token: tokens
+    //     }
+    // }, function (data) {
+    //     console.log(data);
+    //     for (var i = 0; i < data.length; i++) {
+    //         console.log(data);
+    //         shopcar.innerHTML += `
+    //         <div class="shop-list">
+    //             <div class="shop-img"> <img src="${data[i].img_url}" alt=""></div>
+    //             <div class="introduce">
+    //                 <h2 class="shop-title">${data[i].title}</h2>
+    //                 <p class="shop-text">${data[i].supplier}</p>
+    //             </div>
+    //             <p class="price">${data[i].price}</p>
+    //             <div class="shop-count"  data-id="${data[i].Id}">
+    //                 <span class="remove">-</span>
+    //                 <span class="count">${data[i].count}</span>
+    //                 <span class="add">+</span>
+    //             </div>
+    //             <p class="cotatlprice">￥${data[i].count * data[i].price}</p>
+    //             <div class="del">删除</div>
+    //         </div>
+    //         `
+
+    //         // 减少商品
+    //         var remove = document.querySelectorAll('.remove');
+    //         for (let i = 0; i < remove.length; i++) {
+    //             remove[i].onclick = function (e) {
+    //                 shop_id = e.target.parentNode.getAttribute('data-Id')
+    //                 REQUEST.get('/remove', {
+    //                     params: {
+    //                         goodId: shop_id,
+    //                         token: tokens
+    //                     }
+    //                 }, function (data) {
+    //                     if (data.code == 1) {
+    //                         var p = e.target.parentNode.previousElementSibling.innerHTML;
+    //                         // console.log(p);
+    //                         e.target.nextElementSibling.innerHTML--;
+    //                         e.target.parentNode.nextElementSibling.innerHTML = '￥' + e.target.nextElementSibling.innerHTML * p
+    //                         if (e.target.nextElementSibling.innerHTML <1) {
+    //                             REQUEST.get('/del', {
+    //                                 params: {
+    //                                     token: tokens,
+    //                                     goodId: shop_id
+    //                                 }
+    //                             }, function (data) {
+    //                                 // console.log(data);
+    //                                 // console.log(e.target.parentNode.parentNode);
+    //                                 e.target.parentNode.parentNode.remove();
+    //                             })
+    //                         }
+    //                     }
+    //                 })
+    //             }
+    //         }
+    //         // 增加
+    //         var add = document.querySelectorAll('.add');
+    //         for (let i = 0; i < add.length; i++) {
+    //             add[i].onclick = function (e) {
+    //                 REQUEST.get('/add', {
+    //                     params: {
+    //                         goodId: e.target.parentNode.getAttribute('data-Id'),
+    //                         token: tokens
+    //                     }
+    //                 }, function (data) {
+    //                     console.log(data);
+    //                     if (data.code === 1) {
+    //                         var p = e.target.parentNode.previousElementSibling.innerHTML;
+    //                         e.target.previousElementSibling.innerHTML++;
+    //                         e.target.parentNode.nextElementSibling.innerHTML = '￥' + e.target.previousElementSibling.innerHTML * p;
+
+    //                         // console.log( e.target.parentNode.getAttribute('data-Id')
+    //                         // );
+    //                         // location.reload()
+    //                     }
+    //                 })
+    //             }
+    //         }
+
+
+    //         var del = document.querySelector('.del');
+    //         del.onclick = function (e) {
+    //             REQUEST.get('/del', {
+    //                 params: {
+    //                     token: tokens,
+    //                     goodId: shop_id
+    //                 }
+    //             }, function (data) {
+    //                 // console.log(data);
+    //                 // console.log(e.target.parentNode.parentNode);
+    //                 if (data.code == 1) {
+
+    //                     e.target.parentNode.remove();
+    //                 }
+    //             })
+    //         }
+
+    //     }
+    // })
+</script>
+
+</html>

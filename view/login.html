@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/register.css">
+</head>
+
+<body>
+    <header></header>
+
+    <form action="">
+        <input type="text" name="" id="user" placeholder="用户名"><span class="u"></span>
+        <input type="password" name="" id="pwd" placeholder="密码"><span class="p"></span>
+        <input type="button" value="登录" class="button">
+    </form>
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script>
+    nav();
+    var user = document.querySelector('#user');
+    var pwd = document.querySelector('#pwd');
+    var uspan = document.querySelector('.u');
+    var pspan = document.querySelector('.p');
+    var btn = document.querySelector('.button');
+    var res = /^[a-zA-Z0-9_-]{4,16}$/;
+    var mi = /^(?!^[0-9]+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z_]{6,16}$/;
+    var username;
+    var password;
+    var isActive;
+    var isPass;
+    var flag = 1;
+    // 判断输入的值是否符合正则验证
+    user.oninput = function (e) {
+        username = this.value;
+        if (res.test(username)) {
+            username = this.value;
+            uspan.innerHTML = "用户名可用";
+            uspan.style.color = "green";
+            isActive = true;
+        } else {
+            uspan.innerHTML = "用户名格式不对";
+            uspan.style.color = "red";
+            isActive = false;
+
+        }
+    }
+    pwd.oninput = function (e) {
+        password = this.value;
+        if (mi.test(password)) {
+            password = this.value;
+            pspan.innerHTML = "密码可用";
+            pspan.style.color = "green";
+            isPass = true;
+        } else {
+            pspan.innerHTML = "不能是纯数字或者纯字母，不能包含特殊字符，密码长度在6~16位之间";
+            pspan.style.color = "red";
+            isPass = false;
+
+        }
+    }
+
+    // 点击跳转
+    btn.onclick = function () {
+        // 判断两个条件都对
+        if (!(isActive && isPass)) {
+            return;
+        }
+        // 调用api
+        Axios({
+            url: '/login',
+            method: 'get',
+            data: {
+                username: username,
+                password: password
+            }
+        }).then(data => {
+            // data = JSON.parse(data);
+            localStorage.setItem('token', data.token);
+            location.href = './index.html'
+        })
+        // REQUEST.get('/login', {
+        //     params: {
+        //         username: username,
+        //         password: password
+        //     }
+        // }, function (data) {
+        //     localStorage.setItem('token', data.token);
+        //         location.href = './index.html'
+        // })
+
+    }
+
+    //  获取所有的li  给第一个li加border
+    var lis = document.querySelectorAll('header ul li');
+    lis[1].classList.add('bottom');
+</script>
+
+
+</html>

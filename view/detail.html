@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .detail {
+            width: 1000px;
+            margin: 30px auto 0;
+            display: flex;
+        }
+
+        .box {
+            height: 500px;
+            position: relative;
+
+        }
+
+        .more {
+            width: 1000px;
+            margin: auto;
+            overflow: hidden;
+            margin-top: 40px;
+        }
+
+        .big,
+        .small {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            border: 1px solid #e4e4e4;
+        }
+
+        .small img {
+            width: 100%;
+        }
+
+        .big {
+            position: absolute;
+            top: 0;
+            left: 440px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .mask {
+            width: 200px;
+            height: 200px;
+            opacity: .5;
+            position: absolute;
+            display: none;
+            z-index: 10;
+            background-color: yellow;
+            cursor: move;
+        }
+
+        .big>img {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .imgs {
+            width: 80px;
+            height: 80px;
+            margin: 10px 5px 0;
+            float: left;
+            border: 1px solid #e4e4e4;
+
+        }
+
+        .imgs img {
+            width: 100%;
+        }
+
+        .more .listitem img {
+            width: 100%;
+        }
+
+        .cost {
+            width: 400px;
+            height: 400px;
+            float: right;
+            align-self: center;
+            margin-left: 70px;
+        }
+
+        button {
+            width: 200px;
+            height: 50px;
+            background-color: rgb(241, 99, 99);
+            border: none;
+            color: #fff;
+            border-radius: 10px;
+        }
+
+        .more h1 {
+            height: 50px;
+            line-height: 50px;
+            padding: 20px;
+        }
+
+        .go-back {
+            width: 100px;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            margin: 20px 0 20px 180px;
+            border: 1px solid rgb(126, 125, 125);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <header></header>
+    <div class="go-back">返回</div>
+    <div class="detail">
+        <div class="box"></div>
+        <div class="cost"></div>
+    </div>
+    <div class="more">
+        <h1>相关商品推荐</h1>
+    </div>
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script src="../js/search.js"></script>
+<script>
+    nav();
+    detail();
+    var box = document.querySelector('.box');
+    var more = document.querySelector('.more');
+    var cost = document.querySelector('.cost');
+    var go_back = document.querySelector('.go-back');
+    var tokens = localStorage.getItem('token');
+    LOGIN(tokens);
+
+    // 获取类型
+    var type_two;
+    function detail() {
+        var url = location.href;
+        var res = getUrl(url);
+        // console.log(res.goodId);
+        Axios({
+            url: "/detail",
+            method: "get",
+            data: res
+        }).then(data => {
+            // data = JSON.parse(data);
+            type_two = data[0].type_two;
+            box.innerHTML = `
+            <div class="small">
+            <div class="mask"></div>
+            <img src="${data[0].img_list_url}" alt="">
+        </div>
+        <div class="big">
+            <img src="${data[0].img_url}" alt="">
+        </div>
+            `
+            cost.innerHTML = `
+            <h1>${data[0].title}</h1>
+            <h3>价格:${data[0].price}</h3>
+            <button>加入购物车</button>
+            `
+            // tab 图片
+            var dataimgs = JSON.parse(data[0].imgs);
+            console.log(dataimgs);
+            for (var i = 0; i < dataimgs.length; i++) {
+                console.log(i);
+                console.log(dataimgs[i]);
+                var html = "";
+                html += `
+                <div class="imgs">
+                <img src="${dataimgs[i]}" alt="">
+                </div>
+                `
+                box.innerHTML += html;
+                f();
+                tabimg();
+            }
+            mores();
+
+
+            var car_btn = document.querySelector('.cost button');
+            car_btn.onclick = function () {
+                shopadd(res.goodId, tokens);
+            }
+        })
+        //     REQUEST.get('/detail', {
+        //         // res本身就是一个对象
+        //         params: res
+        //     }, function (data) {
+        //         console.log(data);
+        //         type_two = data[0].type_two;
+        //         box.innerHTML = `
+        //     <div class="small">
+        //     <div class="mask"></div>
+        //     <img src="${data[0].img_list_url}" alt="">
+        // </div>
+        // <div class="big">
+        //     <img src="${data[0].img_url}" alt="">
+        // </div>
+        //     `
+        //         cost.innerHTML = `
+        //     <h1>${data[0].title}</h1>
+        //     <h3>价格:${data[0].price}</h3>
+        //     <button>加入购物车</button>
+        //     `
+        //         // tab 图片
+        //         var dataimgs = JSON.parse(data[0].imgs);
+        //         console.log(dataimgs);
+        //         for (var i = 0; i < dataimgs.length; i++) {
+        //             console.log(i);
+        //             console.log(dataimgs[i]);
+        //             var html = "";
+        //             html += `
+        //         <div class="imgs">
+        //         <img src="${dataimgs[i]}" alt="">
+        //         </div>
+        //         `
+        //             box.innerHTML += html;
+        //             f();
+        //             tabimg();
+        //         }
+        //         mores();
+
+
+        //         var car_btn = document.querySelector('.cost button');
+        //         car_btn.onclick = function () {
+        //             shopadd(res.goodId, tokens);
+        //         }
+        //     })
+    }
+
+    function mores() {
+        Axios({
+            url: "/search",
+            method: "get",
+            data: { word: type_two },
+        }).then(data => {
+            // data = JSON.parse(data);
+            for (var j = 0; j < data.length; j++) {
+
+                more.innerHTML += `
+<div class="listitem" data-id="${data[j].Id}">
+<div class="list-img">
+<img alt="" src="${data[j].img_list_url}">
+</div>
+<div class="title">
+<p>${data[j].title}</p>
+</div>
+<div class="text">
+<span class="price">￥${data[j].price}</span>
+<span>${data[j].mack}</span>
+</div>
+</div>
+`
+            }
+
+        })
+        //     REQUEST.get('/search', {
+        //         params: {
+        //             word: type_two
+        //         }
+        //     }, function (data) {
+        //         console.log(data);
+        //         for (var j = 0; j < data.length; j++) {
+
+        //             more.innerHTML += `
+        // <div class="listitem" data-id="${data[j].Id}">
+        // <div class="list-img">
+        // <img alt="" src="${data[j].img_list_url}">
+        //     </div>
+        //     <div class="title">
+        // <p>${data[j].title}</p>
+        //     </div>
+        //     <div class="text">
+        // <span class="price">￥${data[j].price}</span>
+        // <span>${data[j].mack}</span>
+        // </div>
+        // </div>
+        //  `
+        //         }
+        //     })
+
+    }
+    // url 传参
+    //file:///c:/Users/%E9%95%B7%E6%83%85/Desktop/by/view/detail.html?Id=6
+    // slice 截取   split 分隔
+    // console.log(url);
+
+    function f() {
+        var small = document.querySelector('.small');
+        var big = document.querySelector('.big');
+        var mask = document.querySelector('.mask');
+        var bigimg = document.querySelector('.big>img');
+        // 进入和离开
+        small.onmouseenter = function () {
+            big.style.display = 'block';
+            mask.style.display = 'block';
+        }
+        small.onmouseleave = function () {
+            big.style.display = 'none';
+            mask.style.display = 'none';
+        }
+        // mask移动
+        small.onmousemove = function (e) {
+            var maskx = e.pageX - box.offsetLeft - mask.clientWidth / 2;
+            var masky = e.pageY - box.offsetTop - mask.clientHeight / 2;
+            var movex = small.clientWidth - mask.clientWidth;
+            var movey = small.clientHeight - mask.clientHeight;
+            maskx = maskx < 0 ? 0 : maskx > movex ? movex : maskx;
+            masky = masky < 0 ? 0 : masky > movey ? movey : masky;
+
+            mask.style.left = maskx + "px";
+            mask.style.top = masky + "px";
+
+            // 图片移动
+            var bigx = bigimg.clientWidth - big.clientWidth;
+            var bigy = bigimg.clientHeight - big.clientHeight;
+            // 遮挡层移动距离*大图移动的最大距离/mask移动的最大距离
+            var bx = maskx * bigx / movex;
+            var by = masky * bigx / movex;
+            bigimg.style.left = -bx + 'px'
+            bigimg.style.top = -by + 'px'
+        }
+    }
+
+    // 点击
+    function tabimg() {
+        var tabimg = document.querySelectorAll('.imgs img');
+        var simg = document.querySelector('.small img');
+        var bimg = document.querySelector('.big img');
+        for (var i = 0; i < tabimg.length; i++) {
+            tabimg[i].onclick = function () {
+                console.log(this.src);
+                simg.src = this.src;
+                bimg.src = this.src;
+            }
+        }
+
+    }
+
+
+    //返回上一页
+    go_back.onclick = function () {
+        history.back();
+    }
+</script>
+
+</html>

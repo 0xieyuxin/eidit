@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/register.css">
+</head>
+
+<body>
+    <header></header>
+
+    <form action="">
+        <input type="text" name="" id="user" placeholder="用户名"><span class="u">4到16位（字母，数字，下划线，减号</span>
+        <input type="password" name="" id="pwd" placeholder="密码"><span class="p">不能是纯数字或者纯字母，不能包含特殊字符，密码长度为6~16位</span>
+        <input type="button" value="注册" class="button">
+    </form>
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script>
+    nav();
+    var user = document.querySelector('#user');
+    var pwd = document.querySelector('#pwd');
+    var uspan = document.querySelector('.u');
+    var pspan = document.querySelector('.p');
+    var btn = document.querySelector('.button');
+    // 判断用户名的正则
+    var res = /^[a-zA-Z0-9_-]{4,16}$/;
+    // 判断密码的正则
+    var mi = /^(?!^[0-9]+$)(?!^[a-zA-Z]+$)[0-9a-zA-Z_]{6,16}$/;
+
+    // 判断是否符合 规则
+    // user.onblur = function () {
+    //     if (res.test(uvalue)) {
+    //         uspan.innerHTML = "用户名可用";
+    //         uspan.style.color = "black";
+    //     } else {
+    //         uspan.innerHTML = "4到16位（字母，数字，下划线，减号";
+    //         uspan.style.color = "red";
+    //     }
+    // }
+    // pwd.onblur = function () {
+    //     if (mi.test(pvalue)) {
+    //         pspan.innerHTML = "密码可用";
+    //         pspan.style.color = "black";
+    //     } else {
+    //         pspan.innerHTML = "密码格式不正确，不能是纯数字或者纯字母，不能包含特殊字符，密码长度在6~16位之间";
+    //         pspan.style.color = "red";
+    //     }
+    // }
+
+    btn.onclick = function (e) {
+        var uvalue = user.value;
+        var pvalue = pwd.value;
+        if (!res.test(uvalue)) {
+            uspan.innerHTML = "用户名格式不对";
+            uspan.style.color = "red";
+            return;  // 不对,不进行下一步 直接退出
+        } else {
+            uspan.innerHTML = "用户名可用";
+            uspan.style.color = "black";
+        }
+        if (!mi.test(pvalue)) {
+            pspan.innerHTML = "密码格式不对";
+            pspan.style.color = "red";
+
+            return;
+        } else {
+            pspan.innerHTML = "密码可用";
+            pspan.style.color = "black";
+        }
+        Axios({
+            url: "/register",
+            method: "get",
+            data: {
+                username: uvalue,
+                password: pvalue
+            },
+        }).then(data => {
+            // data = JSON.parse(data);
+            if (data.code == 1) {
+                // abcd  1234qwer
+                console.log('注册成功');
+                location.href = './login.html'
+            } else {
+                console.log('注册失败');
+            }
+
+        })
+        // REQUEST.get('/register', {
+        //     params: {
+        //         username: uvalue,
+        //         password: pvalue
+        //     }
+        // }, function (data) {
+        //     console.log(data);
+        //     if (data.code == 1) {
+        //         // abcd  1234qwer
+        //         console.log('注册成功');
+        //         location.href = './login.html'
+        //     } else {
+        //         console.log('注册失败');
+        //     }
+        // })
+    }
+    //  获取所有的li  给第一个li加border
+    var lis = document.querySelectorAll('header ul li');
+    lis[2].classList.add('bottom');
+
+</script>
+
+</html>

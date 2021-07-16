@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .list {
+            width: 1000px;
+            margin: auto;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <header></header>
+    <div class="list"></div>
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script src="../js/search.js"></script>
+<script>
+    nav();
+    var list = document.querySelector('.list');
+    var url = location.href;
+    var res = text(url);
+    searchs(res);
+
+    // 当前页面点击重新搜索
+    var search_btn = document.querySelector('.search button');
+    var search_value = document.querySelector('.search>input');
+    search_btn.onclick = function () {
+        list.innerHTML='';
+        console.log(search_value.value);
+        res = search_value.value;
+        searchs(res);
+    }
+
+    var tokens = localStorage.getItem('token');
+    LOGIN(tokens);
+
+
+</script>
+
+</html>

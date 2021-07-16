@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+    <div class="back">返回顶部</div>
+    <header> </header>
+    <!--  导航条 -->
+    <nav class="navlist">
+        <li><a href="">咖啡</a></li>
+        <li><a href="">饮食</a></li>
+        <li><a href="">正餐</a></li>
+        <li><a href="">男装</a></li>
+        <li><a href="">女装</a></li>
+        <li><a href="">眼镜</a></li>
+        <li><a href="">鞋靴</a></li>
+    </nav>
+    <!-- 轮播图 -->
+    <div class="swiper">
+        <ul>
+            <li><img src="../asses/images/a.jpg" alt=""></li>
+            <li><img src="../asses/images/b.jpg" alt=""></li>
+            <li><img src="../asses/images/c.jpg" alt=""></li>
+            <li><img src="../asses/images/d.jpg" alt=""></li>
+            <li><img src="../asses/images/e.jpg" alt=""></li>
+
+        </ul>
+        <span class="prev"></span>
+        <span class="next"></span>
+        <ul class="circle"></ul>
+    </div>
+    <!-- 整个商品列表 -->
+    <div class="shopList"></div>
+    <div class="load">
+        <img src="../asses/images/loading.jpg" alt="">
+    </div> 
+</body>
+<script src="../js/animation.js"></script>
+<!-- <script src="../js/request.js"></script> -->
+<script src="../js/underscore.js"></script>
+<script src="../js/index.js"></script>
+<!-- <script>
+
+    var nav=document.querySelector('header nav');
+    var search_input=document.querySelector('.search');
+    window.onscroll=function(){
+        if(document.documentElement.scrollTop>100){
+            // nav.style.position='fixed'
+            nav.className="fix";
+            search_input.className="inputmove"
+        }else{
+            nav.className=""
+            search_input.className=""
+
+        }
+    }
+
+</script> -->
+</html>
